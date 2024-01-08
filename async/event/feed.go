@@ -165,18 +165,19 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 	// of sendCases. When a send succeeds, the corresponding case moves to the end of
 	// 'cases' and it shrinks by one element.
 	cases := f.sendCases
+	fmt.Printf("jbujny - cases: %v %s \n", cases, time.Now().String())
 	for {
 		// Fast path: try sending without blocking before adding to the select set.
 		// This should usually succeed if subscribers are fast enough and have free
 		// buffer space.
 		for i := firstSubSendCase; i < len(cases); i++ {
-			fmt.Println("jbujny - TrySend(rvalue)", time.Now().String())
+			fmt.Printf("jbujny - TrySend(rvalue): %v %s \n", rvalue, time.Now().String())
 			if cases[i].Chan.TrySend(rvalue) {
 				nsent++
 				cases = cases.deactivate(i)
 				i--
 			}
-			fmt.Println("jbujny - after TrySend(rvalue)", time.Now().String())
+			fmt.Printf("jbujny - after TrySend(rvalue): %v %s \n", rvalue, time.Now().String())
 		}
 		if len(cases) == firstSubSendCase {
 			break
