@@ -20,5 +20,13 @@ jobs:
 
       - name: Bazel build
         run: |
-          bazel build //cmd/validator:image_bundle --config=release 
-          docker images -a
+          bazel build //cmd/validator:image_bundle.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          # Name of the artifact to upload.
+          # Optional. Default is 'artifact'
+          name: validator
+
+          # A file, directory or wildcard pattern that describes what to upload
+          # Required.
+          path: bazel-bin/cmd/validator/image_bundle.tar
