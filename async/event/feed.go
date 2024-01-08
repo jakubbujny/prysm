@@ -19,6 +19,7 @@ package event
 
 import (
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"reflect"
 	"sync"
 )
@@ -134,11 +135,14 @@ func (f *Feed) remove(sub *feedSub) {
 func (f *Feed) Send(value interface{}) (nsent int) {
 	rvalue := reflect.ValueOf(value)
 
+	log.Info("jbujny - running init once")
 	f.once.Do(f.init)
+	log.Info("jbujny - finished init once, receiving from f.sendLock")
 	<-f.sendLock
-
+	log.Info("jbujny - f.sendLock received, locking f.mu")
 	// Add new cases from the inbox after taking the send lock.
 	f.mu.Lock()
+	log.Info("jbujny - f.mu locked")
 	f.sendCases = append(f.sendCases, f.inbox...)
 	f.inbox = nil
 
@@ -148,6 +152,7 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 		panic(feedTypeError{op: "Send", got: rvalue.Type(), want: f.etype})
 	}
 	f.mu.Unlock()
+	log.Info("jbujny - f.mu unlocked")
 
 	// Set the sent value on all channels.
 	for i := firstSubSendCase; i < len(f.sendCases); i++ {
@@ -163,11 +168,13 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 		// This should usually succeed if subscribers are fast enough and have free
 		// buffer space.
 		for i := firstSubSendCase; i < len(cases); i++ {
+			log.Info("jbujny - TrySend(rvalue)")
 			if cases[i].Chan.TrySend(rvalue) {
 				nsent++
 				cases = cases.deactivate(i)
 				i--
 			}
+			log.Info("jbujny - after TrySend(rvalue)")
 		}
 		if len(cases) == firstSubSendCase {
 			break
@@ -191,7 +198,9 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 	for i := firstSubSendCase; i < len(f.sendCases); i++ {
 		f.sendCases[i].Send = reflect.Value{}
 	}
+	log.Info("jbujny - unlocking sendLock")
 	f.sendLock <- struct{}{}
+	log.Info("jbujny - unlocked sendLock")
 	return nsent
 }
 
