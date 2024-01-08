@@ -48,6 +48,7 @@ func (v *validator) WaitForActivation(ctx context.Context, accountsChangedChan c
 // 4) If the stream is reset in error, restart the routine.
 // 5) If the stream returns a response indicating one or more validators are active, exit the routine.
 func (v *validator) internalWaitForActivation(ctx context.Context, accountsChangedChan <-chan [][fieldparams.BLSPubkeyLength]byte) error {
+	log.Info("internal wait for activation")
 	ctx, span := trace.StartSpan(ctx, "validator.WaitForActivation")
 	defer span.End()
 
@@ -98,6 +99,7 @@ func (v *validator) internalWaitForActivation(ctx context.Context, accountsChang
 	}
 
 	v.ticker = slots.NewSlotTicker(time.Unix(int64(v.genesisTime), 0), params.BeaconConfig().SecondsPerSlot)
+	log.Info("internal wait for activation - end")
 	return nil
 }
 

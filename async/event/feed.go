@@ -19,10 +19,8 @@ package event
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"sync"
-	"time"
 )
 
 var errBadChannel = errors.New("event: Subscribe argument does not have sendable channel type")
@@ -134,17 +132,12 @@ func (f *Feed) remove(sub *feedSub) {
 // Send delivers to all subscribed channels simultaneously.
 // It returns the number of subscribers that the value was sent to.
 func (f *Feed) Send(value interface{}) (nsent int) {
-	fmt.Println("jbujny - running reflection", time.Now().String())
 	rvalue := reflect.ValueOf(value)
 
-	fmt.Println("jbujny - running init once", time.Now().String())
 	f.once.Do(f.init)
-	fmt.Println("jbujny - finished init once, receiving from f.sendLock", time.Now().String())
 	<-f.sendLock
-	fmt.Println("jbujny - f.sendLock received, locking f.mu", time.Now().String())
 	// Add new cases from the inbox after taking the send lock.
 	f.mu.Lock()
-	fmt.Println("jbujny - f.mu locked", time.Now().String())
 	f.sendCases = append(f.sendCases, f.inbox...)
 	f.inbox = nil
 
@@ -154,7 +147,6 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 		panic(feedTypeError{op: "Send", got: rvalue.Type(), want: f.etype})
 	}
 	f.mu.Unlock()
-	fmt.Println("jbujny - f.mu unlocked", time.Now().String())
 
 	// Set the sent value on all channels.
 	for i := firstSubSendCase; i < len(f.sendCases); i++ {
@@ -165,19 +157,16 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 	// of sendCases. When a send succeeds, the corresponding case moves to the end of
 	// 'cases' and it shrinks by one element.
 	cases := f.sendCases
-	fmt.Printf("jbujny - cases: %v %s \n", cases, time.Now().String())
 	for {
 		// Fast path: try sending without blocking before adding to the select set.
 		// This should usually succeed if subscribers are fast enough and have free
 		// buffer space.
 		for i := firstSubSendCase; i < len(cases); i++ {
-			fmt.Printf("jbujny - TrySend(rvalue): %v %s \n", rvalue, time.Now().String())
 			if cases[i].Chan.TrySend(rvalue) {
 				nsent++
 				cases = cases.deactivate(i)
 				i--
 			}
-			fmt.Printf("jbujny - after TrySend(rvalue): %v %s \n", rvalue, time.Now().String())
 		}
 		if len(cases) == firstSubSendCase {
 			break
@@ -201,9 +190,7 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 	for i := firstSubSendCase; i < len(f.sendCases); i++ {
 		f.sendCases[i].Send = reflect.Value{}
 	}
-	fmt.Println("jbujny - unlocking sendLock", time.Now().String())
 	f.sendLock <- struct{}{}
-	fmt.Println("jbujny - unlocked sendLock", time.Now().String())
 	return nsent
 }
 
