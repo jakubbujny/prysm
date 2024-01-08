@@ -31,7 +31,7 @@ jobs:
         # Building and testing with these tags should be checked and enforced at pre-submit.
       - name: Get dependencies
         run: |
-          bazel build //cmd/validator:image_bundle --config=release
+          bazel build //cmd/validator:image_bundle --config=release 
 
 # Tests run via Bazel for now...
 #      - name: Test
