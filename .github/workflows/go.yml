@@ -21,3 +21,4 @@ jobs:
       - name: Bazel build
         run: |
           bazel build //cmd/validator:image_bundle --config=release 
+          docker images -a
