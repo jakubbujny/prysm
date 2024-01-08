@@ -333,6 +333,7 @@ func DisplayRemotePublicKeys(validatingPubKeys [][48]byte) {
 
 // AddPublicKeys imports a list of public keys into the keymanager for web3signer use. Returns status with message.
 func (km *Keymanager) AddPublicKeys(ctx context.Context, pubKeys [][fieldparams.BLSPubkeyLength]byte) ([]*ethpbservice.ImportedRemoteKeysStatus, error) {
+	log.Info("jbujny - importing public key")
 	if ctx == nil {
 		return nil, errors.New("context is nil")
 	}
@@ -359,7 +360,9 @@ func (km *Keymanager) AddPublicKeys(ctx context.Context, pubKeys [][fieldparams.
 		}
 		log.Debug("Added pubkey to keymanager for web3signer", "pubkey", hexutil.Encode(pubKey[:]))
 	}
+	log.Info("jbujny - imported public key, publishing event")
 	km.accountsChangedFeed.Send(km.providedPublicKeys)
+	log.Info("jbujny - imported public key, published event")
 	return importedRemoteKeysStatuses, nil
 }
 
