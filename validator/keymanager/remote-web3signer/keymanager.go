@@ -357,9 +357,11 @@ func (km *Keymanager) AddPublicKeys(ctx context.Context, pubKeys [][fieldparams.
 			Status:  ethpbservice.ImportedRemoteKeysStatus_IMPORTED,
 			Message: fmt.Sprintf("Successfully added pubkey: %v", hexutil.Encode(pubKey[:])),
 		}
-		log.Debug("Added pubkey to keymanager for web3signer", "pubkey", hexutil.Encode(pubKey[:]))
+		log.Info("Added pubkey to keymanager for web3signer", "pubkey", hexutil.Encode(pubKey[:]))
 	}
+	log.Info("Publishing some internal event")
 	km.accountsChangedFeed.Send(km.providedPublicKeys)
+	log.Info("Finished publishing some internal event")
 	return importedRemoteKeysStatuses, nil
 }
 

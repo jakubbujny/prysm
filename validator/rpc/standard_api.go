@@ -299,7 +299,9 @@ func (s *Server) ImportRemoteKeys(ctx context.Context, req *ethpbservice.ImportR
 	if s.validatorService == nil {
 		return nil, status.Error(codes.FailedPrecondition, "Validator service not ready.")
 	}
+	log.Info("Getting key manager")
 	km, err := s.validatorService.Keymanager()
+	log.Info("Obtained key manager")
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Could not get Prysm keymanager (possibly due to beacon node unavailable): %v", err))
 	}
@@ -324,7 +326,9 @@ func (s *Server) ImportRemoteKeys(ctx context.Context, req *ethpbservice.ImportR
 		log.Warnf("Setting web3signer base url for imported keys is not supported. Prysm only uses the url from --validators-external-signer-url flag for web3signer.")
 	}
 
+	log.Info("Adding public key")
 	statuses, err := adder.AddPublicKeys(ctx, remoteKeys)
+	log.Info("Public key added")
 	if err != nil {
 		sts := groupImportRemoteKeysErrors(req, fmt.Sprintf("Could not add keys;error: %v", err))
 		return &ethpbservice.ImportRemoteKeysResponse{Data: sts}, nil
