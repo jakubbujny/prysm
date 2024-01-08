@@ -134,6 +134,7 @@ func (f *Feed) remove(sub *feedSub) {
 // Send delivers to all subscribed channels simultaneously.
 // It returns the number of subscribers that the value was sent to.
 func (f *Feed) Send(value interface{}) (nsent int) {
+	fmt.Println("jbujny - running reflection", time.Now().String())
 	rvalue := reflect.ValueOf(value)
 
 	fmt.Println("jbujny - running init once", time.Now().String())
