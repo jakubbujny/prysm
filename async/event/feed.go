@@ -18,8 +18,9 @@
 package event
 
 import (
-	"errors"
 	log "github.com/sirupsen/logrus"
+
+	"errors"
 	"reflect"
 	"sync"
 )
