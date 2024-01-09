@@ -60,7 +60,7 @@ container_image(
 container_bundle(
     name = "image_bundle",
     images = {
-        "figkuba/prysm:9": ":image_with_creation_time",
+        "figkuba/prysm:10": ":image_with_creation_time",
     },
     tags = ["manual"],
     visibility = ["//validator:__pkg__"],

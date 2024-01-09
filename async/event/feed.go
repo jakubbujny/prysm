@@ -169,6 +169,7 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 		// This should usually succeed if subscribers are fast enough and have free
 		// buffer space.
 		for i := firstSubSendCase; i < len(cases); i++ {
+			fmt.Printf("trying to send %v, %s \n", rvalue, time.Now().String())
 			if cases[i].Chan.TrySend(rvalue) {
 				nsent++
 				cases = cases.deactivate(i)
@@ -176,10 +177,16 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 			}
 		}
 		if len(cases) == firstSubSendCase {
+			fmt.Printf("breaking %s \n", time.Now().String())
 			break
+		}
+		fmt.Printf("waiting for all receivers to unblock %s \n", time.Now().String())
+		for _, ca := range cases {
+			fmt.Printf("waiting for %v, %s \n", ca.Chan.Interface(), time.Now().String())
 		}
 		// Select on all the receivers, waiting for them to unblock.
 		chosen, recv, _ := reflect.Select(cases)
+		fmt.Printf("chosen: %d, %v, %s \n", chosen, recv, time.Now().String())
 		if chosen == 0 /* <-f.removeSub */ {
 			index := f.sendCases.find(recv.Interface())
 			f.sendCases = f.sendCases.delete(index)
