@@ -5,9 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"path/filepath"
-	"runtime/debug"
-
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/go-playground/validator/v10"
 	"github.com/logrusorgru/aurora"
@@ -23,6 +20,7 @@ import (
 	"github.com/prysmaticlabs/prysm/v4/validator/keymanager/remote-web3signer/internal"
 	web3signerv1 "github.com/prysmaticlabs/prysm/v4/validator/keymanager/remote-web3signer/v1"
 	log "github.com/sirupsen/logrus"
+	"path/filepath"
 )
 
 // SetupConfig includes configuration values for initializing.
@@ -276,8 +274,6 @@ func getSignRequestJson(ctx context.Context, validator *validator.Validate, requ
 
 // SubscribeAccountChanges returns the event subscription for changes to public keys.
 func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][fieldparams.BLSPubkeyLength]byte) event.Subscription {
-	log.Info("jbujny - SubscribeAccountChanges")
-	debug.PrintStack()
 	return km.accountsChangedFeed.Subscribe(pubKeysChan)
 }
 
@@ -336,7 +332,6 @@ func DisplayRemotePublicKeys(validatingPubKeys [][48]byte) {
 
 // AddPublicKeys imports a list of public keys into the keymanager for web3signer use. Returns status with message.
 func (km *Keymanager) AddPublicKeys(ctx context.Context, pubKeys [][fieldparams.BLSPubkeyLength]byte) ([]*ethpbservice.ImportedRemoteKeysStatus, error) {
-	log.Info("jbujny - importing public key")
 	if ctx == nil {
 		return nil, errors.New("context is nil")
 	}
@@ -363,9 +358,7 @@ func (km *Keymanager) AddPublicKeys(ctx context.Context, pubKeys [][fieldparams.
 		}
 		log.Debug("Added pubkey to keymanager for web3signer", "pubkey", hexutil.Encode(pubKey[:]))
 	}
-	log.Info("jbujny - imported public key, publishing event")
 	km.accountsChangedFeed.Send(km.providedPublicKeys)
-	log.Info("jbujny - imported public key, published event")
 	return importedRemoteKeysStatuses, nil
 }
 
