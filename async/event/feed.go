@@ -159,6 +159,7 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 		f.sendCases[i].Send = rvalue
 	}
 
+	fmt.Printf("sending to subscribers %s \n", time.Now().String())
 	// Send until all channels except removeSub have been chosen. 'cases' tracks a prefix
 	// of sendCases. When a send succeeds, the corresponding case moves to the end of
 	// 'cases' and it shrinks by one element.
@@ -191,11 +192,13 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 			nsent++
 		}
 	}
+	fmt.Printf("sent to subscribers %s \n", time.Now().String())
 
 	// Forget about the sent value and hand off the send lock.
 	for i := firstSubSendCase; i < len(f.sendCases); i++ {
 		f.sendCases[i].Send = reflect.Value{}
 	}
+	fmt.Printf("releasing sendLock %s \n", time.Now().String())
 	f.sendLock <- struct{}{}
 	return nsent
 }
