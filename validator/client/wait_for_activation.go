@@ -57,7 +57,7 @@ func (v *validator) internalWaitForActivation(ctx context.Context, accountsChang
 	validatingKeys, err := v.keyManager.FetchValidatingPublicKeys(ctx)
 	log.Info("jbujny - internal wait for activation, fetched keys")
 	for _, key := range validatingKeys {
-		log.Info("jbujny - internal wait for activation, key: %s", hex.EncodeToString(key[:]))
+		log.Infof("jbujny - internal wait for activation, key: %s", hex.EncodeToString(key[:]))
 	}
 	if err != nil {
 		return errors.Wrap(err, "could not fetch validating keys")
