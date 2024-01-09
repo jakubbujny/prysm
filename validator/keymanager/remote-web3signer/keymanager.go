@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"runtime/debug"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/go-playground/validator/v10"
@@ -275,6 +276,8 @@ func getSignRequestJson(ctx context.Context, validator *validator.Validate, requ
 
 // SubscribeAccountChanges returns the event subscription for changes to public keys.
 func (km *Keymanager) SubscribeAccountChanges(pubKeysChan chan [][fieldparams.BLSPubkeyLength]byte) event.Subscription {
+	log.Info("jbujny - SubscribeAccountChanges")
+	debug.PrintStack()
 	return km.accountsChangedFeed.Subscribe(pubKeysChan)
 }
 
