@@ -19,8 +19,10 @@ package event
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"sync"
+	"time"
 )
 
 var errBadChannel = errors.New("event: Subscribe argument does not have sendable channel type")
@@ -135,9 +137,13 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 	rvalue := reflect.ValueOf(value)
 
 	f.once.Do(f.init)
+	fmt.Printf("sendLock length: %d, %s \n", len(f.sendLock), time.Now().String())
 	<-f.sendLock
+	fmt.Printf("obtained sendLock %s \n", time.Now().String())
 	// Add new cases from the inbox after taking the send lock.
+	fmt.Printf("before mutex %s \n", time.Now().String())
 	f.mu.Lock()
+	fmt.Printf("after mutex %s \n", time.Now().String())
 	f.sendCases = append(f.sendCases, f.inbox...)
 	f.inbox = nil
 
