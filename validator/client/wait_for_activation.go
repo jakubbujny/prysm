@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/hex"
 	"io"
 	"time"
 
@@ -48,11 +49,16 @@ func (v *validator) WaitForActivation(ctx context.Context, accountsChangedChan c
 // 4) If the stream is reset in error, restart the routine.
 // 5) If the stream returns a response indicating one or more validators are active, exit the routine.
 func (v *validator) internalWaitForActivation(ctx context.Context, accountsChangedChan <-chan [][fieldparams.BLSPubkeyLength]byte) error {
-	log.Info("internal wait for activation")
+	log.Info("jbujny - internal wait for activation")
 	ctx, span := trace.StartSpan(ctx, "validator.WaitForActivation")
 	defer span.End()
 
+	log.Info("jbujny - internal wait for activation, fetching keys")
 	validatingKeys, err := v.keyManager.FetchValidatingPublicKeys(ctx)
+	log.Info("jbujny - internal wait for activation, fetched keys")
+	for _, key := range validatingKeys {
+		log.Info("jbujny - internal wait for activation, key: %s", hex.EncodeToString(key[:]))
+	}
 	if err != nil {
 		return errors.Wrap(err, "could not fetch validating keys")
 	}
@@ -83,7 +89,9 @@ func (v *validator) internalWaitForActivation(ctx context.Context, accountsChang
 	req := &ethpb.ValidatorActivationRequest{
 		PublicKeys: bytesutil.FromBytes48Array(validatingKeys),
 	}
+	log.Info("jbujny - internal wait for activation, waiting for activation")
 	stream, err := v.validatorClient.WaitForActivation(ctx, req)
+	log.Info("jbujny - internal wait for activation, waited for activation")
 	if err != nil {
 		tracing.AnnotateError(span, err)
 		attempts := streamAttempts(ctx)
