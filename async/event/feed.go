@@ -19,10 +19,8 @@ package event
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"sync"
-	"time"
 )
 
 var errBadChannel = errors.New("event: Subscribe argument does not have sendable channel type")
@@ -137,13 +135,9 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 	rvalue := reflect.ValueOf(value)
 
 	f.once.Do(f.init)
-	fmt.Printf("sendLock length: %d, %s \n", len(f.sendLock), time.Now().String())
 	<-f.sendLock
-	fmt.Printf("obtained sendLock %s \n", time.Now().String())
 	// Add new cases from the inbox after taking the send lock.
-	fmt.Printf("before mutex %s \n", time.Now().String())
 	f.mu.Lock()
-	fmt.Printf("after mutex %s \n", time.Now().String())
 	f.sendCases = append(f.sendCases, f.inbox...)
 	f.inbox = nil
 
@@ -159,7 +153,6 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 		f.sendCases[i].Send = rvalue
 	}
 
-	fmt.Printf("sending to subscribers %s \n", time.Now().String())
 	// Send until all channels except removeSub have been chosen. 'cases' tracks a prefix
 	// of sendCases. When a send succeeds, the corresponding case moves to the end of
 	// 'cases' and it shrinks by one element.
@@ -169,7 +162,6 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 		// This should usually succeed if subscribers are fast enough and have free
 		// buffer space.
 		for i := firstSubSendCase; i < len(cases); i++ {
-			fmt.Printf("trying to send %v, %s \n", rvalue, time.Now().String())
 			if cases[i].Chan.TrySend(rvalue) {
 				nsent++
 				cases = cases.deactivate(i)
@@ -177,16 +169,10 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 			}
 		}
 		if len(cases) == firstSubSendCase {
-			fmt.Printf("breaking %s \n", time.Now().String())
 			break
-		}
-		fmt.Printf("waiting for all receivers to unblock %s \n", time.Now().String())
-		for _, ca := range cases {
-			fmt.Printf("waiting for %v, %s \n", ca.Chan.Interface(), time.Now().String())
 		}
 		// Select on all the receivers, waiting for them to unblock.
 		chosen, recv, _ := reflect.Select(cases)
-		fmt.Printf("chosen: %d, %v, %s \n", chosen, recv, time.Now().String())
 		if chosen == 0 /* <-f.removeSub */ {
 			index := f.sendCases.find(recv.Interface())
 			f.sendCases = f.sendCases.delete(index)
@@ -199,13 +185,11 @@ func (f *Feed) Send(value interface{}) (nsent int) {
 			nsent++
 		}
 	}
-	fmt.Printf("sent to subscribers %s \n", time.Now().String())
 
 	// Forget about the sent value and hand off the send lock.
 	for i := firstSubSendCase; i < len(f.sendCases); i++ {
 		f.sendCases[i].Send = reflect.Value{}
 	}
-	fmt.Printf("releasing sendLock %s \n", time.Now().String())
 	f.sendLock <- struct{}{}
 	return nsent
 }
