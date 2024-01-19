@@ -7,6 +7,7 @@ import (
 
 	"github.com/prysmaticlabs/prysm/v4/cmd"
 	"github.com/prysmaticlabs/prysm/v4/cmd/beacon-chain/flags"
+	"github.com/prysmaticlabs/prysm/v4/cmd/beacon-chain/storage"
 	"github.com/prysmaticlabs/prysm/v4/cmd/beacon-chain/sync/checkpoint"
 	"github.com/prysmaticlabs/prysm/v4/cmd/beacon-chain/sync/genesis"
 	"github.com/prysmaticlabs/prysm/v4/config/features"
@@ -61,7 +62,6 @@ var appHelpFlagGroups = []flagGroup{
 			cmd.TracingEndpointFlag,
 			cmd.TraceSampleFractionFlag,
 			cmd.MonitoringHostFlag,
-			cmd.BackupWebhookOutputDir,
 			flags.MonitoringPortFlag,
 			cmd.DisableMonitoringFlag,
 			cmd.MaxGoroutines,
@@ -128,12 +128,14 @@ var appHelpFlagGroups = []flagGroup{
 			flags.EngineEndpointTimeoutSeconds,
 			flags.SlasherDirFlag,
 			flags.LocalBlockValueBoost,
-			flags.BlobRetentionEpoch,
+			flags.JwtId,
 			checkpoint.BlockPath,
 			checkpoint.StatePath,
 			checkpoint.RemoteURL,
 			genesis.StatePath,
 			genesis.BeaconAPIURL,
+			storage.BlobStoragePathFlag,
+			storage.BlobRetentionEpochFlag,
 		},
 	},
 	{
@@ -157,6 +159,7 @@ var appHelpFlagGroups = []flagGroup{
 			cmd.P2PMetadata,
 			cmd.P2PAllowList,
 			cmd.P2PDenyList,
+			cmd.PubsubQueueSize,
 			cmd.StaticPeers,
 			cmd.EnableUPnPFlag,
 			flags.MinSyncPeers,
@@ -179,6 +182,12 @@ var appHelpFlagGroups = []flagGroup{
 			genesis.StatePath,
 			flags.InteropGenesisTimeFlag,
 			flags.InteropNumValidatorsFlag,
+		},
+	},
+	{
+		Name: "deprecated",
+		Flags: []cli.Flag{
+			cmd.BackupWebhookOutputDir,
 		},
 	},
 }

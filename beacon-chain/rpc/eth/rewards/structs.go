@@ -1,9 +1,9 @@
 package rewards
 
 type BlockRewardsResponse struct {
-	Data                BlockRewards `json:"data"`
-	ExecutionOptimistic bool         `json:"execution_optimistic"`
-	Finalized           bool         `json:"finalized"`
+	Data                *BlockRewards `json:"data"`
+	ExecutionOptimistic bool          `json:"execution_optimistic"`
+	Finalized           bool          `json:"finalized"`
 }
 
 type BlockRewards struct {
@@ -31,6 +31,7 @@ type IdealAttestationReward struct {
 	Head             string `json:"head"`
 	Target           string `json:"target"`
 	Source           string `json:"source"`
+	Inactivity       string `json:"inactivity"`
 }
 
 type TotalAttestationReward struct {
@@ -38,7 +39,7 @@ type TotalAttestationReward struct {
 	Head           string `json:"head"`
 	Target         string `json:"target"`
 	Source         string `json:"source"`
-	InclusionDelay string `json:"inclusion_delay"`
+	Inactivity     string `json:"inactivity"`
 }
 
 type SyncCommitteeRewardsResponse struct {
